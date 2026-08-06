@@ -1,0 +1,1776 @@
+/*
+ * LLM_Viz — everything specific to this app.
+ *
+ * styles.css carries the design system inherited from RAG_Viz: the warm
+ * neutrals, the type ramp, the shadow scale, and the shared content components
+ * (sections, figures, equations, code blocks, trade-off tables). This file adds
+ * only what is new here, so the two can be updated independently.
+ *
+ * Two rules drive the visual language, both continuous with the system above:
+ * a variant's *role* is encoded in rule weight and style rather than hue, and
+ * the single piece of persistent emphasis is reserved for the loaded model's
+ * own path — because that is the one fact the user tracks across every screen.
+ */
+
+/* ─────────────────────────── Topbar ─────────────────────────── */
+
+.app > .topbar {
+  height: auto;
+  flex: 0 0 auto;
+  min-height: 64px;
+  padding: 14px 24px;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.topbar-sub {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+  border-left: 1px solid var(--border);
+  padding-left: 20px;
+  max-width: 340px;
+  line-height: 1.4;
+}
+
+/* ─────────────────────────── Model bar ─────────────────────────── */
+
+.mb {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.mb-credit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  align-self: flex-end;
+  color: var(--text-faint);
+  line-height: 1.25;
+  text-align: right;
+}
+
+.mb-credit-person {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.mb-credit-name {
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mb-credit-affiliation {
+  font-size: var(--fs-micro);
+}
+
+.mb-credit-affiliation::before {
+  display: none;
+}
+
+.mb-credit-link {
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+  text-decoration: none;
+}
+
+.mb-credit-link:hover,
+.mb-credit-link:focus-visible {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.mb-form {
+  display: flex;
+  gap: 8px;
+}
+
+.mb-input {
+  width: 320px;
+  height: 34px;
+  padding: 0 12px;
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  color: var(--text);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  outline: none;
+}
+
+.mb-input:focus {
+  border-color: var(--ink);
+  background: var(--surface);
+}
+
+.mb-input::placeholder {
+  color: var(--text-faint);
+}
+
+.mb-go {
+  height: 34px;
+  padding: 0 16px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--surface);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mb-go:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.mb-presets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.mb-presets-label {
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+  margin-right: 2px;
+}
+
+.mb-preset {
+  padding: 4px 9px;
+  font-size: var(--fs-micro);
+  font-family: var(--mono);
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 99px;
+  cursor: pointer;
+}
+
+.mb-preset:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.mb-preset.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+}
+
+.mb-clear {
+  padding: 4px 8px;
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-strong);
+  cursor: pointer;
+}
+
+.mb-error {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 460px;
+  padding: 9px 12px;
+  font-size: var(--fs-xs);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--ink);
+  border-radius: var(--r-sm);
+  text-align: left;
+}
+
+.mb-error b {
+  font-weight: 600;
+}
+
+.mb-error span {
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
+/* ─────────────────────────── Model strip ─────────────────────────── */
+
+.modelstrip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 9px 24px;
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-xs);
+  z-index: 15;
+}
+
+.ms-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+}
+
+.ms-source {
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 2px 7px;
+  border: 1px solid var(--border-strong);
+  border-radius: 99px;
+}
+
+.ms-source.hf {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.ms-dims {
+  font-family: var(--mono);
+  color: var(--text-dim);
+}
+
+.ms-diverged,
+.ms-unresolved {
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+  padding-left: 16px;
+  border-left: 1px solid var(--border-strong);
+}
+
+.ms-diverged {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+
+.stack-wrap {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  background: var(--bg);
+}
+
+
+/* ─────────────────────────── Detail bar ─────────────────────────── */
+
+/*
+ * The stage hero follows the RAG_Viz panel hierarchy: identify the selected
+ * position first, then introduce the currently rendered variant beneath it.
+ */
+.llm-detail-head {
+  padding: 32px 34px 26px;
+}
+
+.llm-detail-head h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+}
+
+.llm-detail-head .detail-tagline {
+  margin-bottom: 0;
+}
+
+.llm-detail-slot {
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.llm-detail-slot.layer {
+  color: var(--text-dim);
+}
+
+.llm-lineage-btn {
+  margin-top: 22px;
+}
+
+.llm-concept-btn {
+  margin-top: 10px;
+}
+
+.llm-reset-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border: 1px dashed var(--border-heavy);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  cursor: pointer;
+  transition: color 140ms, border-color 140ms, background 140ms;
+}
+
+.llm-reset-btn:hover {
+  border-color: var(--ink);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.detail-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.detail-bar-block {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-dim);
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-lineage,
+.detail-reset {
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  padding: 4px 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: 99px;
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.detail-lineage:hover,
+.detail-reset:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.detail-reset {
+  border-style: dashed;
+}
+
+/* ─────────────────────────── Variant detail ─────────────────────────── */
+
+.vd-head {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Keep the lineage overlay compact; only the main detail column takes on the
+   more spacious RAG_Viz reading rhythm. */
+.detail .vd-head {
+  padding: 26px 34px 20px;
+}
+
+.vd-head h3 {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.vd-meta {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.vd-year {
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+}
+
+.vd-paper {
+  font-size: var(--fs-micro);
+  color: var(--text-dim);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.vd-paper:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+/* The one sentence that makes a progression a progression, not a list. */
+.vd-fixes {
+  margin-top: 14px;
+  padding: 11px 13px;
+  background: var(--surface-sunken);
+  border-left: 2px solid var(--ink);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+.vd-fixes-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+
+.vd-fixes p {
+  margin: 5px 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.vd-body {
+  padding: 0 20px 40px;
+}
+
+.detail .vd-body {
+  padding: 0 34px 64px;
+}
+
+/* ─────────────────────────── Cost table ─────────────────────────── */
+
+.cost-table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+
+.cost-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 14px;
+  padding: 10px 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cost-row:last-child {
+  border-bottom: none;
+}
+
+.cost-row.is-key {
+  background: var(--surface-sunken);
+}
+
+.cost-label {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+.cost-value {
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cost-row.is-key .cost-value {
+  font-size: var(--fs-md);
+}
+
+.cost-note {
+  grid-column: 1 / -1;
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+  line-height: 1.4;
+}
+
+.cost-hint {
+  margin: 10px 0 0;
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+/* ─────────────────────────── Used-by, IO ─────────────────────────── */
+
+.usedby-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.usedby-chip {
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  padding: 4px 9px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-strong);
+  border-radius: 99px;
+  color: var(--text-dim);
+}
+
+.io-row {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.io-row > div {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.io-row span {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  width: 26px;
+  flex: 0 0 26px;
+}
+
+.io-row code {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  color: var(--text);
+  background: var(--surface-sunken);
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+}
+
+.block-caveat {
+  margin-top: 14px;
+  padding: 10px 12px;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--text-dim);
+  border: 1px dashed var(--border-heavy);
+  border-radius: var(--r-sm);
+}
+
+.role-text {
+  font-size: var(--fs-sm);
+}
+
+.empty-hint {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  margin-top: 14px;
+}
+
+@media (max-width: 720px) {
+  .detail .vd-head {
+    padding: 22px 18px 18px;
+  }
+
+  .detail .vd-body {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+
+/* ═════════════════════════ Lineage map ═════════════════════════ */
+
+.ln-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.ln-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 18px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.ln-head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ln-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.ln-head h2 {
+  margin: 7px 0 4px;
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.ln-head p {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+.ln-close {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.ln-close:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.ln-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.ln-canvas {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.ln-panel {
+  width: 460px;
+  flex: 0 0 460px;
+  overflow-y: auto;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+}
+
+.ln-empty {
+  padding: 40px 24px;
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+  text-align: center;
+}
+
+.ln-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 3;
+}
+
+.ln-use,
+.ln-concepts {
+  flex: 1;
+  min-width: 200px;
+  padding: 9px 14px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-align: left;
+  color: var(--surface);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+
+.ln-use:hover {
+  opacity: 0.88;
+}
+
+.ln-concepts {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--text-dim);
+  background: var(--surface-sunken);
+  border-color: var(--border-strong);
+}
+
+.ln-concepts:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+  background: var(--surface);
+}
+
+.ln-concepts span {
+  margin-left: 2px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-faint);
+}
+
+.ln-active-tag,
+.ln-model-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 99px;
+}
+
+.ln-active-tag {
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-strong);
+  color: var(--text-dim);
+}
+
+.ln-model-tag {
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ── Lineage nodes ──
+   Role is the categorical encoding here: five validated hues plus an
+   achromatic `legacy`. Because two of the light-mode hues sit under 3:1 against
+   the surface, the relief rule applies — every node prints its role as text and
+   the legend is always on screen, so hue never carries meaning alone. */
+
+.ln-node {
+  position: relative;
+  width: 214px;
+  /* Fixed, not min-height, and must stay in step with NODE_H in
+     LineageMap.tsx: the layout packs ranks on that constant and routes edges
+     around these exact boxes. When cards were free to grow, every taller card
+     ate into the rank gap and edges ran through its neighbours.
+
+     Sized for the worst case rather than the common one — a two-line title
+     ("Position Interpolation") above a three-line tagline. At 116px that
+     combination overflowed and `overflow: hidden` sliced the last line through
+     the middle of its glyphs:
+       12 top + 38 title + 5 gap + 51 tagline + 30 role chip = 136. */
+  height: 136px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 14px 30px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-top: 3px solid var(--role);
+  border-radius: 11px;
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    background 0.15s;
+}
+
+.ln-node.role-origin {
+  --role: var(--role-origin);
+  --role-wash: var(--role-origin-wash);
+}
+.ln-node.role-refinement {
+  --role: var(--role-refinement);
+  --role-wash: var(--role-refinement-wash);
+}
+.ln-node.role-branch {
+  --role: var(--role-branch);
+  --role-wash: var(--role-branch-wash);
+}
+.ln-node.role-synthesis {
+  --role: var(--role-synthesis);
+  --role-wash: var(--role-synthesis-wash);
+}
+.ln-node.role-frontier {
+  --role: var(--role-frontier);
+  --role-wash: var(--role-frontier-wash);
+}
+.ln-node.role-legacy {
+  --role: var(--role-legacy);
+  --role-wash: var(--role-legacy-wash);
+}
+
+/* Not yet settled: a dashed top rule says "the verdict is not in". */
+.ln-node.role-frontier {
+  border-top-style: dashed;
+}
+
+.ln-node.role-legacy {
+  opacity: 0.72;
+}
+
+.ln-node:hover {
+  box-shadow: var(--shadow-sm);
+  background: var(--role-wash);
+}
+
+.ln-node.is-selected {
+  border-color: var(--role);
+  box-shadow:
+    0 0 0 1px var(--role),
+    var(--shadow-md);
+  background: var(--role-wash);
+}
+
+/* The loaded model's choice. This is the one place --model appears in the map,
+   so "where does this model sit" survives any amount of scrolling. */
+.ln-node.is-model {
+  box-shadow:
+    0 0 0 2px var(--model),
+    var(--shadow-sm);
+}
+
+.ln-node-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ln-node-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+}
+
+/* Clamped so a three-line title cannot push past the card's budgeted height. */
+.ln-node-label {
+  font-size: var(--fs-md);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ln-node-year {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.ln-concept-dot {
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  color: var(--text-dim);
+  background: var(--surface-sunken);
+}
+
+/* Clamped so the card cannot outgrow its fixed height. The full text is one
+   click away in the detail panel, so nothing is lost. */
+.ln-node-tagline {
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+  color: var(--text-dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ln-role {
+  position: absolute;
+  left: 14px;
+  bottom: 9px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--role, var(--text-faint));
+  background: var(--role-wash, transparent);
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+
+/* Inline in the detail panel, where it is a badge rather than a card corner. */
+.vd-meta .ln-role {
+  position: static;
+}
+
+.ln-model-tick {
+  position: absolute;
+  right: 12px;
+  bottom: 9px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-onaccent);
+  background: var(--model);
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+
+.ln-node .react-flow__handle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Lineage edges ──
+   Edge kind is a secondary encoding, so it rides line style rather than hue —
+   colour is already spent on role and on the model's path. `fixes` is the one
+   kind drawn heavier, because "this exists to repair a named failure" is the
+   relationship that makes a progression a progression. */
+
+.react-flow__edge.ln-edge .react-flow__edge-path {
+  stroke: var(--border-heavy);
+  stroke-width: 1.6;
+}
+
+.react-flow__edge.ln-edge.kind-fixes .react-flow__edge-path {
+  stroke: var(--text-dim);
+  stroke-width: 2.2;
+}
+
+.react-flow__edge.ln-edge.kind-combines .react-flow__edge-path {
+  stroke-dasharray: 6 4;
+}
+
+.react-flow__edge.ln-edge.kind-inspires .react-flow__edge-path {
+  stroke-dasharray: 2 4;
+  opacity: 0.8;
+}
+
+.react-flow__edge.ln-edge.kind-replaces .react-flow__edge-path {
+  stroke: var(--text-dim);
+  stroke-dasharray: 10 3 2 3;
+}
+
+.react-flow__edge.ln-edge .react-flow__edge-text {
+  font-size: 10.5px;
+  font-weight: 550;
+  fill: var(--text-dim);
+}
+
+.react-flow__edge.ln-edge .react-flow__edge-textbg {
+  fill: var(--bg);
+}
+
+/* ── Legend ── */
+
+.ln-legend {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-sm);
+  font-size: var(--fs-micro);
+  color: var(--text-dim);
+  z-index: 5;
+}
+
+.ln-legend-head {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 700;
+}
+
+.ln-legend-head:not(:first-child) {
+  margin-top: 5px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.ln-legend span {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.ln-key {
+  width: 26px;
+  height: 0;
+  display: block;
+  border-top: 1.6px solid var(--border-heavy);
+  flex: 0 0 26px;
+}
+
+.ln-key.fixes {
+  border-top: 2.2px solid var(--text-dim);
+}
+
+.ln-key.combines {
+  border-top: 1.6px dashed var(--border-heavy);
+}
+
+.ln-key.inspires {
+  border-top: 1.6px dotted var(--border-heavy);
+}
+
+.ln-key.replaces {
+  border-top: 2px dashed var(--text-dim);
+}
+
+/* Role swatches: a filled chip, matching the card's top rule. */
+.ln-swatch {
+  width: 16px;
+  height: 10px;
+  flex: 0 0 16px;
+  border-radius: 3px;
+  display: block;
+}
+
+.ln-swatch.origin {
+  background: var(--role-origin);
+}
+.ln-swatch.refinement {
+  background: var(--role-refinement);
+}
+.ln-swatch.branch {
+  background: var(--role-branch);
+}
+.ln-swatch.synthesis {
+  background: var(--role-synthesis);
+}
+.ln-swatch.frontier {
+  background: var(--role-frontier);
+}
+.ln-swatch.legacy {
+  background: var(--role-legacy);
+}
+.ln-swatch.model {
+  background: transparent;
+  box-shadow: 0 0 0 2px var(--model);
+}
+
+/* ─────────────────────────── Responsive ─────────────────────────── */
+
+/*
+ * RAG_Viz floats the detail panel as an absolute overlay below 1360px, because
+ * it had three columns (rail + canvas + panel) competing for width. This app
+ * has two, so the panel stays in flow far further down.
+ *
+ * The override is also a correctness fix, not just a preference: that rule
+ * anchors the panel at `top: 64px`, RAG_Viz's exact topbar height. Here the
+ * topbar carries the model loader and the strip below it carries the loaded
+ * config, so both are taller and variable — the panel would overlap the header
+ * and overflow the viewport.
+ */
+@media (max-width: 1360px) {
+  .detail {
+    position: static;
+    width: 420px;
+    flex-basis: 420px;
+    box-shadow: none;
+  }
+
+  .detail.is-empty {
+    display: flex;
+  }
+}
+
+@media (max-width: 1100px) {
+  .detail {
+    width: 360px;
+    flex-basis: 360px;
+  }
+
+  .ln-panel {
+    width: 380px;
+    flex-basis: 380px;
+  }
+
+  .mb-input {
+    width: 240px;
+  }
+}
+
+@media (max-width: 860px) {
+  .app > .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar-sub {
+    border-left: none;
+    padding-left: 0;
+    max-width: none;
+  }
+
+  .mb {
+    align-items: stretch;
+  }
+
+  .mb-credit {
+    align-self: flex-end;
+  }
+
+  .mb-credit-person {
+    white-space: normal;
+    justify-content: flex-end;
+  }
+
+  .mb-form {
+    flex-direction: column;
+  }
+
+  .mb-input {
+    width: 100%;
+  }
+
+  .mb-presets {
+    justify-content: flex-start;
+  }
+
+  /* Below this the two columns genuinely do not fit, so the panel goes under
+     the canvas rather than beside it — still in flow, never an overlay. */
+  .workspace {
+    flex-direction: column;
+  }
+
+  .stack-wrap {
+    flex: 0 0 52%;
+  }
+
+  .detail {
+    width: auto;
+    flex: 1 1 auto;
+    flex-basis: auto;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .ln-body {
+    flex-direction: column;
+  }
+
+  .ln-canvas {
+    flex: 0 0 46%;
+  }
+
+  .ln-panel {
+    width: auto;
+    flex: 1;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
+
+/* Edge labels are rendered through EdgeLabelRenderer rather than React Flow's
+   built-in text, so they can be shifted apart and can wrap. Wrapping matters:
+   these labels are short sentences, not tags. */
+.ln-edge-label {
+  position: absolute;
+  max-width: 168px;
+  padding: 3px 8px;
+  font-size: 10.5px;
+  line-height: 1.35;
+  font-weight: 550;
+  text-align: center;
+  color: var(--text-dim);
+  background: var(--bg);
+  border-radius: var(--r-sm);
+  pointer-events: none;
+}
+
+/* ═════════════════════════ Embedding figure ═════════════════════════ */
+
+.emb {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 4px 0 8px;
+}
+
+.emb-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.emb-chip {
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  padding: 4px 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: 99px;
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.emb-chip:hover {
+  border-color: var(--model);
+  color: var(--model);
+}
+
+.emb-chip.on {
+  background: var(--model);
+  border-color: var(--model);
+  color: var(--text-onaccent);
+  font-weight: 650;
+}
+
+.emb-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 13px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.emb-panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.emb-panel-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.emb-panel-note {
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+}
+
+.emb-panel-note code {
+  font-family: var(--mono);
+  font-size: 10.5px;
+}
+
+.emb-toggle {
+  font-size: var(--fs-micro);
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-strong);
+  cursor: pointer;
+  padding: 0 0 1px;
+}
+
+.emb-toggle:hover {
+  color: var(--model);
+  border-bottom-color: var(--model);
+}
+
+.emb-svg {
+  width: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.emb-label {
+  font-family: var(--sans);
+  font-size: 9.5px;
+  fill: var(--text);
+}
+
+.emb-bar-label,
+.emb-bar-val {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  dominant-baseline: middle;
+}
+
+.emb-bar-val {
+  font-variant-numeric: tabular-nums;
+  fill: var(--text);
+  font-weight: 600;
+}
+
+.emb-scale {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--text-faint);
+}
+
+.emb-ramp {
+  flex: 1;
+  height: 7px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #2a78d6, #ebe9e4, #d03b3b);
+}
+
+.emb-caption {
+  margin: 0;
+  font-size: var(--fs-micro);
+  line-height: 1.5;
+  color: var(--text-faint);
+}
+
+/* ── Prose written in the content files ──
+   The editor offers headings, tables, images and quotes, so the reader has to
+   present them. Heading sizes stay modest: these sit inside a collapsible
+   section that already has its own title, and a full-size h1 would outrank it. */
+
+.markdown-content :is(h1, h2, h3, h4, h5, h6) {
+  margin: 1.3em 0 0.5em;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.markdown-content h1 { font-size: 1.22em; }
+.markdown-content h2 { font-size: 1.1em; }
+.markdown-content h3 { font-size: 1em; }
+.markdown-content :is(h4, h5, h6) { font-size: 0.94em; color: var(--text-dim); }
+
+.markdown-content :is(h1, h2, h3, h4, h5, h6):first-child {
+  margin-top: 0;
+}
+
+.markdown-content blockquote {
+  margin: 0 0 1em;
+  padding-left: 14px;
+  border-left: 2px solid var(--border-heavy);
+  color: var(--text-dim);
+}
+
+.markdown-content hr {
+  margin: 1.4em 0;
+  border: none;
+  border-top: 1px solid var(--border-strong);
+}
+
+.markdown-content mark {
+  background: var(--role-frontier-wash);
+  padding: 0 3px;
+  border-radius: 2px;
+  color: inherit;
+}
+
+.markdown-content ol {
+  margin: 0 0 1em;
+  padding-left: 1.4em;
+}
+
+.prose-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1em 0;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+}
+
+/* Wide tables scroll in their own box; the panel around them must not. */
+.prose-table-wrap {
+  margin: 0 0 1em;
+  overflow-x: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+}
+
+.prose-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-xs);
+}
+
+.prose-table-wrap :is(th, td) {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose-table-wrap th {
+  background: var(--surface-sunken);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.prose-table-wrap tr:last-child :is(th, td) {
+  border-bottom: none;
+}
+
+/* ───────────────────────── Mobile refinement ─────────────────────────
+   The visualizer's main surface is intentionally diagram-first. At phone
+   widths the diagram stays usable as a compact, pannable preview and the
+   reader moves directly below it. Overlays follow the same vertical rhythm so
+   no side panel is squeezed into an unusable sliver. */
+
+@media (max-width: 860px) {
+  .app > .topbar {
+    gap: 10px;
+    padding: 14px 16px 12px;
+  }
+
+  .topbar h1 {
+    font-size: 24px;
+  }
+
+  .topbar-sub {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .topbar-spacer {
+    display: none;
+  }
+
+  .edit-toggle {
+    align-self: flex-start;
+    min-height: 40px;
+  }
+
+  .mb {
+    gap: 7px;
+  }
+
+  .mb-form {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .mb-input,
+  .mb-go {
+    height: 42px;
+  }
+
+  .mb-input {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .mb-go {
+    padding-inline: 14px;
+  }
+
+  .mb-presets {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 1px 1px 5px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mb-presets::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mb-presets > * {
+    flex: 0 0 auto;
+  }
+
+  .mb-preset,
+  .mb-clear {
+    min-height: 32px;
+  }
+
+  .mb-error {
+    max-width: none;
+  }
+
+  .modelstrip {
+    align-items: flex-start;
+    gap: 7px 12px;
+    padding: 9px 16px;
+  }
+
+  .ms-dims,
+  .ms-diverged,
+  .ms-unresolved {
+    flex-basis: 100%;
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .workspace.is-detail-empty .stack-wrap {
+    flex: 1 1 auto;
+  }
+
+  .workspace.is-detail-empty .detail {
+    display: none;
+  }
+
+  .stack-wrap {
+    flex-basis: 44%;
+    min-height: 230px;
+  }
+
+  .detail {
+    margin-top: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .llm-detail-head {
+    padding: 22px 18px 20px;
+  }
+
+  .detail-eyebrow {
+    margin-bottom: 12px;
+  }
+
+  .detail-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .llm-detail-head h2 {
+    font-size: 27px;
+  }
+
+  .map-btn,
+  .llm-reset-btn {
+    min-height: 44px;
+  }
+
+  .ln-head {
+    gap: 12px;
+    padding: 13px 16px;
+  }
+
+  .ln-head h2 {
+    margin-top: 5px;
+    font-size: 23px;
+  }
+
+  .ln-head p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .ln-close {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .ln-canvas {
+    flex-basis: 52%;
+    min-height: 250px;
+  }
+
+  .ln-panel-actions {
+    position: static;
+    padding: 10px 16px;
+  }
+
+  .ln-use,
+  .ln-concepts {
+    min-width: 0;
+    min-height: 42px;
+    text-align: center;
+  }
+
+  .cm-overlay {
+    padding: 0;
+    backdrop-filter: none;
+  }
+
+  .cm-shell {
+    border: none;
+    border-radius: 0;
+  }
+
+  .cm-bar {
+    height: 56px;
+    flex-basis: 56px;
+    gap: 10px;
+    padding: 0 14px;
+  }
+
+  .cm-bar-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-bar-hint {
+    display: none;
+  }
+
+  .cm-close {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+  }
+
+  .cm-body {
+    flex-direction: column;
+  }
+
+  .cm-canvas {
+    flex: 0 0 50%;
+    min-height: 250px;
+  }
+
+  .cm-detail {
+    width: auto;
+    flex: 1 1 auto;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding: 22px 18px 44px;
+  }
+
+  .cm-detail-empty {
+    min-height: 130px;
+    padding: 28px 24px;
+  }
+
+  .react-flow__controls-button {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app > .topbar {
+    padding: 12px 14px 10px;
+  }
+
+  .topbar h1 {
+    font-size: 22px;
+  }
+
+  .topbar-sub {
+    display: none;
+  }
+
+  .modelstrip {
+    padding-inline: 14px;
+  }
+
+  .stack-wrap {
+    flex-basis: 42%;
+    min-height: 210px;
+  }
+
+  .llm-detail-head h2 {
+    font-size: 25px;
+  }
+
+  .detail .vd-head,
+  .detail .vd-body {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .cost-row {
+    gap: 5px 10px;
+    padding: 10px 11px;
+  }
+
+  .cost-value {
+    font-size: var(--fs-xs);
+  }
+
+  .fig,
+  .mathblock {
+    padding: 16px;
+  }
+
+  .fig-title {
+    margin-bottom: 14px;
+  }
+
+  .fig-caption {
+    margin-top: 14px;
+    padding-top: 12px;
+  }
+
+  .net-fig {
+    overflow-x: auto;
+  }
+
+  .net-table {
+    min-width: 330px;
+  }
+
+  .ln-head p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .ln-canvas {
+    flex-basis: 48%;
+    min-height: 220px;
+  }
+
+  .ln-legend {
+    display: none;
+  }
+
+  .ln-panel-actions {
+    padding-inline: 14px;
+  }
+
+  .cm-canvas {
+    min-height: 220px;
+  }
+
+  .cm-detail {
+    padding: 18px 16px 36px;
+  }
+
+}

@@ -1,0 +1,993 @@
+/*
+ * The content editor.
+ *
+ * Styled as a workspace rather than a modal: it is where the writing happens,
+ * so it takes the whole screen, keeps the block/variant list permanently in
+ * view, and gives the prose a wide comfortable measure. Everything reads from
+ * the same tokens as the app, so an edited field looks like the thing it will
+ * become.
+ */
+
+.edit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 13px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.edit-toggle:hover {
+  border-color: var(--model);
+  color: var(--model);
+}
+
+/* ─────────────────────────── Shell ─────────────────────────── */
+
+.ce {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.ce-head {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 22px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.ce-head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ce-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.ce-head h2 {
+  margin: 5px 0 0;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.ce-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ce-status {
+  font-size: var(--fs-micro);
+  max-width: 380px;
+  line-height: 1.4;
+}
+
+.ce-status.ok {
+  color: var(--role-refinement);
+}
+.ce-status.err {
+  color: var(--role-branch);
+}
+.ce-status.dirty {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--role-frontier);
+  font-weight: 700;
+}
+
+.ce-save {
+  padding: 9px 16px;
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  color: var(--text-onaccent);
+  background: var(--model);
+  border: 1px solid var(--model);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ce-save:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.ce-close {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.ce-close:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.ce-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* ─────────────────────────── Navigator ─────────────────────────── */
+
+.ce-nav {
+  width: 254px;
+  flex: 0 0 254px;
+  overflow-y: auto;
+  padding: 14px 10px 40px;
+  background: var(--surface-sunken);
+  border-right: 1px solid var(--border);
+}
+
+.ce-nav-group {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-faint);
+  padding: 14px 10px 7px;
+}
+
+.ce-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 10px;
+  font-size: var(--fs-xs);
+  text-align: left;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+
+.ce-nav-item:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.ce-nav-item.on {
+  background: var(--model);
+  color: var(--text-onaccent);
+  font-weight: 650;
+}
+
+.ce-nav-ord {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  opacity: 0.65;
+  flex: 0 0 30px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────── Panes ─────────────────────────── */
+
+.ce-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.ce-pane {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 22px 26px 80px;
+}
+
+.ce-pane-title {
+  margin: 0 0 18px;
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+
+.ce-empty {
+  padding: 60px;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+.ce-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ce-tab {
+  padding: 9px 14px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-faint);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+
+.ce-tab:hover {
+  color: var(--text);
+}
+
+.ce-tab.on {
+  color: var(--model);
+  border-bottom-color: var(--model);
+}
+
+/* ─────────────────────────── Fields ─────────────────────────── */
+
+.ce-field {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.ce-row {
+  display: flex;
+  gap: 14px;
+}
+
+.ce-row > .ce-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.ce-label {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.ce-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+  line-height: 1.4;
+}
+
+.ce-input,
+.ce-textarea {
+  width: 100%;
+  padding: 9px 11px;
+  font-family: var(--sans);
+  font-size: var(--fs-sm);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  outline: none;
+}
+
+.ce-input.mono,
+.ce-textarea.mono {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+}
+
+.ce-textarea {
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.ce-input:focus,
+.ce-textarea:focus {
+  border-color: var(--model);
+  box-shadow: 0 0 0 3px var(--model-wash);
+}
+
+.ce-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 16px;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.ce-note {
+  margin: 0 0 20px;
+  padding: 11px 13px;
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+  color: var(--text-dim);
+  background: var(--surface-sunken);
+  border-left: 2px solid var(--model);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+.ce-note code {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+}
+
+/* ─────────────────────────── Repeating cards ─────────────────────────── */
+
+.ce-card {
+  padding: 15px 16px 4px;
+  margin-bottom: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+}
+
+.ce-card.has-err {
+  border-color: var(--role-branch);
+}
+
+.ce-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-faint);
+}
+
+.ce-del {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--role-branch);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ce-card-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ce-move {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  color: var(--text-faint);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.ce-move:hover {
+  border-color: var(--model);
+  color: var(--model);
+}
+
+.ce-concept-card {
+  border-left: 3px solid var(--model);
+}
+
+.ce-concept-card.is-child {
+  margin-bottom: 10px;
+  border-left-color: var(--border-heavy);
+  background: var(--surface-sunken);
+}
+
+.ce-concept-children {
+  margin: 4px -1px 16px;
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.ce-concept-subhead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: var(--text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.ce-concept-subhead span {
+  color: var(--text-faint);
+  font-size: var(--fs-micro);
+  font-weight: 400;
+}
+
+.ce-add {
+  width: 100%;
+  padding: 11px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-dim);
+  background: none;
+  border: 1px dashed var(--border-heavy);
+  border-radius: var(--r-md);
+  cursor: pointer;
+}
+
+.ce-add:hover {
+  border-color: var(--model);
+  color: var(--model);
+}
+
+.ce-err {
+  margin: 0 0 14px;
+  padding: 8px 11px;
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  line-height: 1.5;
+  color: var(--role-branch);
+  background: var(--role-branch-wash);
+  border-radius: var(--r-sm);
+}
+
+.ce-preview {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 9px 11px;
+  background: var(--surface-sunken);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-xs);
+}
+
+.ce-preview-tag {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.ce-preview b {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ce-preview i {
+  font-style: normal;
+  color: var(--text-faint);
+}
+
+/* ─────────────────────────── Rich text ─────────────────────────── */
+
+.rt {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.rt:focus-within {
+  border-color: var(--model);
+  box-shadow: 0 0 0 3px var(--model-wash);
+}
+
+.rt-bar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 8px;
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--border);
+}
+
+.rt-btn {
+  min-width: 28px;
+  height: 26px;
+  padding: 0 7px;
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  color: var(--text-dim);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.rt-btn:hover {
+  background: var(--surface);
+  border-color: var(--border-strong);
+}
+
+.rt-btn.on {
+  background: var(--model);
+  border-color: var(--model);
+  color: var(--text-onaccent);
+}
+
+.rt-hint {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.rt-body {
+  padding: 12px 14px;
+}
+
+.rt-body .tiptap {
+  outline: none;
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  color: var(--text);
+}
+
+.rt-body .tiptap p {
+  margin: 0 0 0.9em;
+}
+
+.rt-body .tiptap p:last-child {
+  margin-bottom: 0;
+}
+
+.rt-body .tiptap code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  padding: 1px 5px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.rt-body .tiptap a {
+  color: var(--model);
+}
+
+.rt-body .tiptap ul {
+  margin: 0 0 0.9em;
+  padding-left: 1.3em;
+}
+
+/* Placeholder for an empty first paragraph. */
+.rt-body .tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--text-faint);
+}
+
+@media (max-width: 860px) {
+  .ce-nav {
+    width: 170px;
+    flex-basis: 170px;
+  }
+
+  .ce-pane {
+    padding: 16px 14px 60px;
+  }
+
+  .ce-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+/* Phone editor: the navigator becomes a horizontally-scrollable strip, so
+   every form field keeps a useful writing width instead of sharing the screen
+   with a narrow permanent rail. */
+@media (max-width: 640px) {
+  .ce-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .ce-head h2 {
+    margin-top: 3px;
+    font-size: 18px;
+  }
+
+  .ce-actions {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .ce-status {
+    flex: 1;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .ce-save,
+  .ce-close {
+    min-height: 40px;
+  }
+
+  .ce-body {
+    flex-direction: column;
+  }
+
+  .ce-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    flex: 0 0 auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 10px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ce-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ce-nav-group {
+    flex: 0 0 auto;
+    padding: 0 3px 0 6px;
+  }
+
+  .ce-nav-item {
+    width: auto;
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 7px 9px;
+    white-space: nowrap;
+  }
+
+  .ce-nav-ord {
+    display: none;
+  }
+
+  .ce-main {
+    min-height: 0;
+  }
+
+  .ce-pane {
+    padding: 16px 12px 52px;
+  }
+
+  .ce-tabs {
+    margin-bottom: 16px;
+  }
+
+  .ce-tab {
+    min-height: 40px;
+    padding: 9px 12px;
+  }
+
+  .ce-card {
+    padding: 13px 12px 2px;
+  }
+
+  .ce-card-head {
+    gap: 8px;
+  }
+
+  .ce-concept-children {
+    margin-inline: -1px;
+    padding: 12px;
+  }
+
+  .ce-concept-subhead {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .rt-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 6px;
+    scrollbar-width: none;
+  }
+
+  .rt-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rt-hint,
+  .rt-sep {
+    display: none;
+  }
+
+  .rt-pop {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    min-width: 0;
+  }
+
+  .rt-body {
+    padding: 12px;
+  }
+}
+
+/* ── Bands in the single content surface ──
+   Everything a variant says is one scroll, so the bands need enough separation
+   to scan by but not so much that the page reads as six stacked forms. A rule
+   and a small-caps heading is the whole treatment. */
+
+.ce-sec {
+  padding-top: 24px;
+  margin-bottom: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.ce-sec:first-of-type {
+  padding-top: 4px;
+  border-top: none;
+}
+
+.ce-sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.ce-sec-head h4 {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.ce-sec-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-onaccent);
+  background: var(--model);
+  padding: 1px 7px;
+  border-radius: 99px;
+}
+
+.ce-sec-hint {
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+  flex: 1;
+  min-width: 0;
+}
+
+/* Inside a band the fields are already spaced; drop the doubled margin. */
+.ce-sec > .ce-field:last-child,
+.ce-sec > .ce-row:last-child > .ce-field {
+  margin-bottom: 8px;
+}
+
+/* ── Full toolbar ──
+   Dense, wrapping, grouped by separators. The buttons are icon-only because a
+   labelled toolbar at this count would be wider than the editor it sits on. */
+
+.rt-bar {
+  flex-wrap: wrap;
+  row-gap: 3px;
+}
+
+.rt-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 5px;
+}
+
+.rt-sep {
+  width: 1px;
+  height: 16px;
+  margin: 0 4px;
+  background: var(--border-strong);
+  flex: 0 0 1px;
+}
+
+.rt-pop-host {
+  position: relative;
+  display: inline-flex;
+}
+
+.rt-pop {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  z-index: 20;
+  min-width: 170px;
+  padding: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-md);
+}
+
+.rt-color {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 6px 9px;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.rt-color:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.rt-color i {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  border: 1px solid var(--border-strong);
+  flex: 0 0 13px;
+}
+
+/* ── The editable surface, matching how the app renders the same Markdown ── */
+
+.rt-body .tiptap h1,
+.rt-body .tiptap h2,
+.rt-body .tiptap h3 {
+  margin: 1.1em 0 0.45em;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.rt-body .tiptap h1 { font-size: 1.3em; }
+.rt-body .tiptap h2 { font-size: 1.15em; }
+.rt-body .tiptap h3 { font-size: 1.02em; }
+
+.rt-body .tiptap :is(h1, h2, h3):first-child {
+  margin-top: 0;
+}
+
+.rt-body .tiptap blockquote {
+  margin: 0 0 0.9em;
+  padding-left: 13px;
+  border-left: 2px solid var(--border-heavy);
+  color: var(--text-dim);
+}
+
+.rt-body .tiptap hr {
+  margin: 1.2em 0;
+  border: none;
+  border-top: 1px solid var(--border-strong);
+}
+
+.rt-body .tiptap mark {
+  background: var(--role-frontier-wash);
+  box-shadow: inset 0 -0.45em 0 var(--role-frontier-wash);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.rt-body .tiptap ol {
+  margin: 0 0 0.9em;
+  padding-left: 1.4em;
+}
+
+.rt-body .tiptap pre {
+  margin: 0 0 0.9em;
+  padding: 11px 13px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.55;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  overflow-x: auto;
+}
+
+.rt-body .tiptap pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+.rt-body .tiptap img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+}
+
+.rt-body .tiptap img.ProseMirror-selectednode {
+  outline: 2px solid var(--model);
+}
+
+.rt-body .tiptap table {
+  width: 100%;
+  margin: 0 0 0.9em;
+  border-collapse: collapse;
+  table-layout: fixed;
+  overflow: hidden;
+}
+
+.rt-body .tiptap :is(th, td) {
+  padding: 6px 9px;
+  border: 1px solid var(--border-strong);
+  font-size: var(--fs-xs);
+  vertical-align: top;
+  position: relative;
+}
+
+.rt-body .tiptap th {
+  background: var(--surface-sunken);
+  font-weight: 650;
+  text-align: left;
+}
+
+.rt-body .tiptap .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--model-wash);
+  pointer-events: none;
+}
+
+/* Syntax highlighting for code blocks, in the same warm register as the app's
+   own code viewer rather than a stock highlight.js theme. */
+.rt-body .tiptap pre .hljs-comment,
+.rt-body .tiptap pre .hljs-quote { color: var(--text-faint); font-style: italic; }
+.rt-body .tiptap pre .hljs-keyword,
+.rt-body .tiptap pre .hljs-selector-tag,
+.rt-body .tiptap pre .hljs-built_in { color: var(--role-synthesis); }
+.rt-body .tiptap pre .hljs-string,
+.rt-body .tiptap pre .hljs-attr { color: var(--role-refinement); }
+.rt-body .tiptap pre .hljs-number,
+.rt-body .tiptap pre .hljs-literal { color: var(--role-branch); }
+.rt-body .tiptap pre .hljs-title,
+.rt-body .tiptap pre .hljs-function { color: var(--role-origin); }

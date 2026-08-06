@@ -1,0 +1,209 @@
+/*
+ * LLM_Viz colour system.
+ *
+ * This file overrides the monochrome tokens inherited from RAG_Viz's
+ * styles.css. Colour here is never decorative — every hue is assigned to a job,
+ * and the assignments are:
+ *
+ *   · Slot      where a block sits in the forward pass (input / trunk / output)
+ *   · Role      how a variant sits in its block's history (origin … frontier)
+ *   · Model     the one thing the user tracks everywhere: the loaded model's
+ *               own path through the design space
+ *
+ * The five chromatic role hues are the dataviz reference palette's slots 1, 3,
+ * 2, 7 and 4, validated as a categorical set against both surfaces below:
+ * light — CVD ΔE 9.2, normal-vision 24.0; dark — CVD 9.4, normal-vision 20.9.
+ * Aqua and yellow sit under 3:1 on the light surface, so the relief rule
+ * applies: every role always ships its name as visible text (on the node and in
+ * the legend), never colour alone.
+ *
+ * `legacy` is deliberately achromatic — it fails the chroma floor on purpose,
+ * because "superseded, kept so you can read old papers" is exactly the thing
+ * that should recede rather than take a series colour.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ── Surfaces ── */
+  --bg: #f2f1ee;
+  --bg-grid: #e3e2dd;
+  --surface: #fbfaf8;
+  --surface-sunken: #f4f3f0;
+  --surface-hover: #eceae6;
+
+  --border: #e6e4df;
+  --border-strong: #d6d3cc;
+  --border-heavy: #a8a49b;
+
+  /* ── Ink ── */
+  --ink: #16161a;
+  --text: #16161a;
+  --text-dim: #52514e;
+  --text-faint: #7d7a73;
+  --text-onaccent: #ffffff;
+
+  /* ── Variant roles (categorical, validated) ── */
+  --role-origin: #2a78d6;
+  --role-refinement: #1baf7a;
+  --role-branch: #eb6834;
+  --role-synthesis: #4a3aa7;
+  --role-frontier: #eda100;
+  --role-legacy: #898781;
+
+  /* Tinted fills — the same hues at low alpha, for card washes. */
+  --role-origin-wash: #2a78d612;
+  --role-refinement-wash: #1baf7a12;
+  --role-branch-wash: #eb683412;
+  --role-synthesis-wash: #4a3aa712;
+  --role-frontier-wash: #eda10012;
+  --role-legacy-wash: #8987810f;
+
+  /* ── Block slots ── */
+  --slot-input: #1baf7a;
+  --slot-layer: #4a3aa7;
+  --slot-output: #eb6834;
+  --slot-input-wash: #1baf7a14;
+  --slot-layer-wash: #4a3aa714;
+  --slot-output-wash: #eb683414;
+
+  /* ── The loaded model's path ──
+     One colour, used nowhere else, so "where does this model sit" is readable
+     at a glance on any screen. */
+  --model: #2a78d6;
+  --model-wash: #2a78d61a;
+
+  /* ── Sequential ramp (magnitude: attention weight, expert load, cost) ── */
+  --seq-100: #cde2fb;
+  --seq-200: #9ec5f4;
+  --seq-300: #6da7ec;
+  --seq-400: #3987e5;
+  --seq-500: #256abf;
+  --seq-600: #184f95;
+  --seq-700: #0d366b;
+
+  /* ── Diverging (signed values: embedding dimensions, logit deltas) ── */
+  --div-neg: #2a78d6;
+  --div-mid: #ebe9e4;
+  --div-pos: #d03b3b;
+
+  --shadow-xs: 0 1px 2px rgba(22, 22, 26, 0.04);
+  --shadow-sm: 0 2px 8px rgba(22, 22, 26, 0.06);
+  --shadow-md: 0 4px 14px rgba(22, 22, 26, 0.07), 0 10px 30px rgba(22, 22, 26, 0.04);
+  --shadow-lg: 0 8px 24px rgba(22, 22, 26, 0.09), 0 24px 60px rgba(22, 22, 26, 0.06);
+  --shadow-xl: 0 12px 32px rgba(22, 22, 26, 0.12), 0 44px 110px rgba(22, 22, 26, 0.14);
+}
+
+/* Dark is selected, not flipped: each hue is re-stepped for the dark surface
+   and the set is validated again against it. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme='light'])) {
+    color-scheme: dark;
+
+    --bg: #0f0f12;
+    --bg-grid: #232329;
+    --surface: #16161a;
+    --surface-sunken: #1c1c21;
+    --surface-hover: #232329;
+
+    --border: #26262c;
+    --border-strong: #33333b;
+    --border-heavy: #4e4e58;
+
+    --ink: #f4f3f0;
+    --text: #f4f3f0;
+    --text-dim: #c3c2b7;
+    --text-faint: #8f8d86;
+    --text-onaccent: #0f0f12;
+
+    --role-origin: #3987e5;
+    --role-refinement: #199e70;
+    --role-branch: #d95926;
+    --role-synthesis: #9085e9;
+    --role-frontier: #c98500;
+    --role-legacy: #898781;
+
+    --role-origin-wash: #3987e51f;
+    --role-refinement-wash: #199e701f;
+    --role-branch-wash: #d959261f;
+    --role-synthesis-wash: #9085e91f;
+    --role-frontier-wash: #c985001f;
+    --role-legacy-wash: #89878118;
+
+    --slot-input: #199e70;
+    --slot-layer: #9085e9;
+    --slot-output: #d95926;
+    --slot-input-wash: #199e7022;
+    --slot-layer-wash: #9085e922;
+    --slot-output-wash: #d9592622;
+
+    --model: #3987e5;
+    --model-wash: #3987e526;
+
+    --div-mid: #2a2a30;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.45);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.5), 0 10px 30px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.55), 0 24px 60px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.6), 0 44px 110px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0f0f12;
+  --bg-grid: #232329;
+  --surface: #16161a;
+  --surface-sunken: #1c1c21;
+  --surface-hover: #232329;
+
+  --border: #26262c;
+  --border-strong: #33333b;
+  --border-heavy: #4e4e58;
+
+  --ink: #f4f3f0;
+  --text: #f4f3f0;
+  --text-dim: #c3c2b7;
+  --text-faint: #8f8d86;
+  --text-onaccent: #0f0f12;
+
+  --role-origin: #3987e5;
+  --role-refinement: #199e70;
+  --role-branch: #d95926;
+  --role-synthesis: #9085e9;
+  --role-frontier: #c98500;
+  --role-legacy: #898781;
+
+  --role-origin-wash: #3987e51f;
+  --role-refinement-wash: #199e701f;
+  --role-branch-wash: #d959261f;
+  --role-synthesis-wash: #9085e91f;
+  --role-frontier-wash: #c985001f;
+  --role-legacy-wash: #89878118;
+
+  --slot-input: #199e70;
+  --slot-layer: #9085e9;
+  --slot-output: #d95926;
+  --slot-input-wash: #199e7022;
+  --slot-layer-wash: #9085e922;
+  --slot-output-wash: #d9592622;
+
+  --model: #3987e5;
+  --model-wash: #3987e526;
+
+  --div-mid: #2a2a30;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.5), 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.55), 0 24px 60px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.6), 0 44px 110px rgba(0, 0, 0, 0.5);
+}
+
+/* The inherited sheet hard-codes a serif display face; the viz method keeps
+   everything in one UI sans so figures and prose share a voice. */
+:root {
+  --serif: var(--sans);
+}

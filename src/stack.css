@@ -1,0 +1,288 @@
+/*
+ * The stack: block cards, lane labels, and the upward flow edges.
+ *
+ * Colour here answers "where in the forward pass am I" — the slot hue rides the
+ * card's left edge and its lane label, never the whole card, so the architecture
+ * reads as one system rather than competing swatches. The two other
+ * colour jobs (a variant's role, and the loaded model's path) belong to the
+ * lineage map and are deliberately absent from this view.
+ */
+
+.stack-wrap {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  background: var(--bg);
+}
+
+/* ── Lane labels ── */
+
+.bk-lane {
+  width: 214px;
+  pointer-events: none;
+  padding-left: 14px;
+  border-left: 2px solid var(--slot);
+}
+
+.bk-lane.input {
+  --slot: var(--slot-input);
+}
+.bk-lane.layer {
+  --slot: var(--slot-layer);
+}
+.bk-lane.output {
+  --slot: var(--slot-output);
+}
+
+.bk-lane h2 {
+  margin: 0 0 5px;
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--slot);
+}
+
+.bk-lane p {
+  margin: 0 0 8px;
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+  color: var(--text-faint);
+}
+
+.bk-lane-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 2px 7px;
+  border: 1px solid var(--border-strong);
+  border-radius: 99px;
+}
+
+.bk-lane-rule {
+  display: none;
+}
+
+/* ── Block cards ── */
+
+.bk {
+  position: relative;
+  width: 380px;
+  height: 122px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px 15px 11px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    background 0.15s;
+}
+
+.bk.input {
+  --slot: var(--slot-input);
+  --slot-wash: var(--slot-input-wash);
+}
+.bk.layer {
+  --slot: var(--slot-layer);
+  --slot-wash: var(--slot-layer-wash);
+}
+.bk.output {
+  --slot: var(--slot-output);
+  --slot-wash: var(--slot-output-wash);
+}
+
+/* Slot identity rides the left edge only. */
+.bk::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--slot);
+}
+
+.bk:hover {
+  border-color: var(--slot);
+  box-shadow: var(--shadow-md);
+}
+
+.bk.is-selected {
+  border-color: var(--slot);
+  box-shadow:
+    0 0 0 1px var(--slot),
+    var(--shadow-md);
+  background: var(--slot-wash);
+}
+
+/* A block config.json cannot determine is drawn provisional, not authoritative. */
+.bk.is-unresolved {
+  border-style: dashed;
+  background: var(--surface-sunken);
+}
+
+/* Pure SSM trunks do not instantiate the attention anatomy beneath the mixer.
+   Keep those cards in the path so the reader can see what has been replaced. */
+.bk.is-bypassed {
+  border-style: dashed;
+  background: var(--surface-sunken);
+}
+
+.bk-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bk-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  border-radius: 7px;
+  color: var(--slot);
+  background: var(--slot-wash);
+}
+
+.bk-title {
+  font-size: var(--fs-md);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bk-ord {
+  font-family: var(--mono);
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.bk-flag {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+.bk-flag.diverged {
+  background: var(--slot);
+  color: var(--text-onaccent);
+  font-weight: 700;
+}
+
+.bk-flag.unresolved {
+  border: 1px dashed var(--border-heavy);
+  color: var(--text-faint);
+}
+
+.bk-flag.bypassed {
+  border: 1px solid var(--slot);
+  color: var(--slot);
+}
+
+.bk-variant {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  min-width: 0;
+}
+
+.bk-variant-label {
+  font-size: var(--fs-base);
+  font-weight: 650;
+  color: var(--slot);
+  white-space: nowrap;
+}
+
+.bk-variant-tagline {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  line-height: 1.35;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bk-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 7px;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+}
+
+.bk-count {
+  font-family: var(--mono);
+}
+
+.bk-explore {
+  font-weight: 650;
+  color: var(--slot);
+  padding: 3px 9px;
+  border: 1px solid transparent;
+  border-radius: 99px;
+  background: var(--slot-wash);
+}
+
+.bk:hover .bk-explore {
+  background: var(--slot);
+  color: var(--text-onaccent);
+}
+
+.bk .react-flow__handle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Flow edges ── */
+
+.react-flow__edge.bk-edge .react-flow__edge-path {
+  stroke: var(--border-heavy);
+  stroke-width: 1.8;
+}
+
+.react-flow__edge.bk-edge.join .react-flow__edge-path {
+  stroke: var(--slot-layer);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+
+.react-flow__edge.bk-edge .react-flow__edge-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--slot-layer);
+}
+
+.react-flow__edge.bk-edge .react-flow__edge-textbg {
+  fill: var(--bg);
+}
+
+.react-flow__arrowhead polyline,
+.react-flow__arrowhead polygon {
+  stroke: var(--border-heavy);
+  fill: var(--border-heavy);
+}
