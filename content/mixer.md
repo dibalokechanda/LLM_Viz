@@ -30,6 +30,26 @@ lineage:
     to: hybrid-ssm
     kind: combines
     label: alternate recurrent state with attention layers
+  - from: attention
+    to: linear-attention
+    kind: derives
+    label: drop softmax to compute the recurrence instead of the matrix
+  - from: linear-attention
+    to: deltanet
+    kind: derives
+    label: use an error-correcting delta rule to update memory
+  - from: deltanet
+    to: gated-deltanet
+    kind: refinement
+    label: add data-dependent gating for memory erasure
+  - from: gated-deltanet
+    to: kda
+    kind: refinement
+    label: introduce fine-grained channel-wise gating
+  - from: kda
+    to: kimi-linear
+    kind: combines
+    label: alternate recurrent linear attention with exact latent attention
 variants:
   - id: attention
     label: Self-attention
@@ -181,6 +201,104 @@ variants:
     usedBy:
       - Jamba
       - Zamba
+  - id: linear-attention
+    label: Linear Attention
+    full: Fast Autoregressive Transformers with Linear Attention
+    year: 2020
+    role: branch
+    tagline: Replace softmax with a kernel feature map to evaluate as a recurrent fast-weight memory
+    paper:
+      title: Transformers are RNNs
+      url: https://arxiv.org/abs/2006.16236
+      authors: Katharopoulos et al.
+    math:
+      - title: Linear Attention Recurrence
+        tex: S_i = S_{i-1} + \phi(K_i) V_i^\top, \quad Z_i = Z_{i-1} + \phi(K_i)
+        note: Associativity of matrix multiplication allows caching a bounded-size memory matrix instead of all previous keys and values.
+    concepts:
+      - id: fast-weight-memory
+        label: Fast Weight Associative Memory
+        kind: method
+        summary: The attention output is computed by updating a dynamic memory matrix step-by-step rather than re-scoring every past token.
+  - id: deltanet
+    label: DeltaNet
+    full: DeltaNet Fast Weight Associative Memory
+    year: 2021
+    role: refinement
+    tagline: Update the fast-weight memory using an error-correcting delta rule rather than pure addition
+    fixes: Pure additive memory accumulation leads to memory overload and noisy retrieval.
+    paper:
+      title: Linear Transformers Are Secretly Fast Weight Programmers
+      url: https://arxiv.org/abs/2102.11174
+      authors: Schlag et al.
+    math:
+      - title: The Delta Rule
+        tex: S_i = S_{i-1} + (V_i - S_{i-1}\phi(K_i)) \phi(K_i)^\top
+        note: The memory subtracts the current retrieval from the target value before writing, naturally erasing outdated associations.
+    concepts:
+      - id: delta-rule
+        label: The Delta Rule
+        kind: method
+        summary: An error-correcting associative memory update that naturally clears out old, conflicting information when new information is written.
+  - id: gated-deltanet
+    label: Gated DeltaNet
+    full: Gated DeltaNet with Adaptive Forgetting
+    year: 2024
+    role: refinement
+    tagline: Combine the delta rule for precise memory writes with data-dependent gating for memory erasure
+    fixes: DeltaNet improves writes but struggles with context switching; pure gating handles context switching but struggles with precise associative recall.
+    paper:
+      title: Gated Delta Networks - Improving Mamba2 with Delta Rule
+      url: https://arxiv.org/abs/2412.06464
+      authors: Yang et al.
+    math:
+      - title: Gated Delta Update
+        tex: S_i = g_i S_{i-1} + (V_i - S_{i-1}\phi(K_i)) \phi(K_i)^\top
+        note: A data-dependent decay gate acts like a librarian, deciding what information to keep or wipe clean before the Delta rule writes.
+    concepts:
+      - id: adaptive-forgetting
+        label: Adaptive Forgetting
+        kind: method
+        summary: Input-dependent gating controls the exponential decay of the memory state over time.
+  - id: kda
+    label: Kimi Delta Attention
+    full: Kimi Delta Attention (KDA)
+    year: 2025
+    role: refinement
+    tagline: Introduce fine-grained, channel-wise gating and Diagonal-Plus-Low-Rank transition matrices
+    fixes: Gated DeltaNet uses coarse, head-wise gating.
+    paper:
+      title: Kimi Linear - An Expressive, Efficient Attention Architecture
+      url: https://arxiv.org/abs/2510.26692
+      authors: Moonshot AI
+    concepts:
+      - id: channel-wise-gating
+        label: Channel-wise Gating
+        kind: method
+        summary: Each feature dimension has its own memory decay, providing greater temporal precision and stability.
+      - id: dplr-matrices
+        label: DPLR Transition Matrices
+        kind: formula
+        summary: Uses Diagonal-Plus-Low-Rank structures for the transition to improve hardware utilization and efficiency.
+  - id: kimi-linear
+    label: KDA + MLA Hybrid
+    full: Interleaved KDA and Multi-Head Latent Attention
+    year: 2025
+    role: synthesis
+    tagline: Alternate recurrent linear attention with exact latent attention for the best of both worlds
+    fixes: Pure linear attention struggles with perfect needle-in-a-haystack retrieval, while pure MLA still grows its cache with sequence length.
+    paper:
+      title: Kimi Linear - An Expressive, Efficient Attention Architecture
+      url: https://arxiv.org/abs/2510.26692
+      authors: Moonshot AI
+    concepts:
+      - id: hybrid-layer-schedule
+        label: Hybrid Layer Schedule
+        kind: method
+        summary: Recurrent KDA layers do the heavy lifting for sequence mixing, while sparse MLA layers retain exact content retrieval.
+    usedBy:
+      - Kimi Linear
+      - Kimi K3
 ---
 
 ## role
@@ -230,3 +348,25 @@ Read the attention cards conditionally for such a model. They describe the atten
 ### fixes
 
 Attention offers direct associative lookup but pays quadratic prompt work and a growing KV cache. A selective SSM avoids those costs but may not match attention's retrieval behavior at every depth.
+
+## linear-attention
+
+Linear attention drops the softmax operation from standard self-attention and replaces it with kernel feature maps. Thanks to the associativity of matrix multiplication, this allows the model to compute the sequence mixing recursively as a "fast weight" associative memory, completely avoiding the $O(N^2)$ attention matrix.
+
+The cost is that you lose the sharp, winner-take-all retrieval capability that softmax provides.
+
+## deltanet
+
+Traditional linear transformers accumulate memory purely by adding up outer products. Over time, this leads to memory overload and noisy retrieval. DeltaNet replaces this with the Delta Rule—an error-correcting update that reads the current memory state, compares it to the target value, and only writes the "delta" or difference. This allows the model to naturally overwrite and erase conflicting older associations.
+
+## gated-deltanet
+
+While the Delta rule makes writes very precise, it is less effective at wiping the memory completely clean (context switching). Gated DeltaNet marries the Delta rule with Mamba-style input-dependent gating. The gate acts as an adaptive forget mechanism, scaling down the previous memory state based on the current token, before the delta rule applies the precise new write.
+
+## kda
+
+Kimi Delta Attention (KDA) takes Gated DeltaNet and makes the gating finer-grained. Instead of a single gate per head, KDA introduces channel-wise gating, allowing each individual feature dimension to dictate its own decay and retention. It utilizes a bespoke chunkwise algorithm and Diagonal-Plus-Low-Rank (DPLR) transition matrices to maximize hardware efficiency while remaining mathematically grounded in the delta rule.
+
+## kimi-linear
+
+Kimi Linear is a hybrid architecture that interleaves KDA layers with Multi-Head Latent Attention (MLA) layers. Much like Jamba, this synthesis acknowledges that while recurrent linear attention is fantastic for bulk sequence mixing in linear time, nothing beats exact attention for needle-in-a-haystack retrieval. By combining them, the model achieves state-of-the-art performance while massively shrinking the KV cache footprint.
