@@ -7,6 +7,9 @@ on:
 
 jobs:
   sync:
+    # Prevent this workflow from running again inside the mirrored Pages repo
+    if: github.repository != 'llmviz/llmviz.github.io'
+
     runs-on: ubuntu-latest
 
     steps:
@@ -16,20 +19,43 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Configure root GitHub Pages base
+      - name: Configure Vite for root GitHub Pages URL
         run: |
-          sed -i "s|base: '/LLM_Viz/'|base: '/'|" vite.config.ts
+          python3 <<'PY'
+          from pathlib import Path
 
-      - name: Commit deployment-specific change
+          path = Path("vite.config.ts")
+          text = path.read_text()
+
+          old = "base: '/LLM_Viz/'"
+          new = "base: '/'"
+
+          if old in text:
+              text = text.replace(old, new)
+              path.write_text(text)
+              print("Changed Vite base from /LLM_Viz/ to /")
+          elif new in text:
+              print("Vite base is already /")
+          else:
+              raise SystemExit(
+                  "Could not find expected Vite base configuration in vite.config.ts"
+              )
+          PY
+
+      - name: Commit Pages-specific configuration
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add vite.config.ts
-          git commit -m "Configure root Pages deployment" || true
 
-      - name: Push to LLMViz Pages
+          git add vite.config.ts
+
+          git diff --cached --quiet || \
+            git commit -m "Configure root GitHub Pages deployment"
+
+      - name: Push to LLMViz Pages repository
         env:
           TOKEN: ${{ secrets.PAGES_SYNC_TOKEN }}
         run: |
+          git remote remove pages 2>/dev/null || true
           git remote add pages "https://x-access-token:${TOKEN}@github.com/llmviz/llmviz.github.io.git"
           git push pages HEAD:main --force
