@@ -16,9 +16,20 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Push to LLMViz Pages repo
+      - name: Configure root GitHub Pages base
+        run: |
+          sed -i "s|base: '/LLM_Viz/'|base: '/'|" vite.config.ts
+
+      - name: Commit deployment-specific change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vite.config.ts
+          git commit -m "Configure root Pages deployment" || true
+
+      - name: Push to LLMViz Pages
         env:
           TOKEN: ${{ secrets.PAGES_SYNC_TOKEN }}
         run: |
-          git remote add pages https://x-access-token:${TOKEN}@github.com/llmviz/llmviz.github.io.git
-          git push pages main:main --force
+          git remote add pages "https://x-access-token:${TOKEN}@github.com/llmviz/llmviz.github.io.git"
+          git push pages HEAD:main --force
