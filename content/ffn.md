@@ -117,7 +117,7 @@ variants:
           \text{GELU}(x) = x \cdot \Phi(x) \approx 0.5x\left(1 + \tanh\left[\sqrt{2/\pi}\,(x +
           0.044715x^3)\right]\right)
         note: >-
-          The tanh form is the "gelu_new" approximation — it exists because the exact erf was slow
+          The tanh form is the "gelu_new" approximation; it exists because the exact erf was slow
           on 2018 hardware. Both survive in configs, and they differ enough to change logits, so
           ports must match the original.
     figures:
