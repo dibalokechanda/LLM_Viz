@@ -1,0 +1,23 @@
+name: Sync to LLMViz Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to llmviz.github.io
+        env:
+          TOKEN: ${{ secrets.PAGES_SYNC_TOKEN }}
+        run: |
+          git remote add pages https://x-access-token:${TOKEN}@github.com/llmviz/llmviz.github.io.git
+          git push pages main:main --force
