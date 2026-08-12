@@ -14,8 +14,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Push to llmviz.github.io
+      - name: Push to LLMViz Pages repo
         env:
           TOKEN: ${{ secrets.PAGES_SYNC_TOKEN }}
         run: |
